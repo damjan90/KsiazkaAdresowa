@@ -42,15 +42,16 @@ void dodajPrzyjaciela(przyjaciel bazaPrzyjaciol[],int indeks)
     bazaPrzyjaciol[indeks].email = email;
 
     fstream plik;
-    plik.open("KsiazkaAdresowa.txt", ios::out | ios::app);
+    plik.open("ksiazkaAdresowaZmodyfikowana.txt", ios::out | ios::app);
     if (plik.good())
     {
-        plik << osobaId << endl;
-        plik << imie << endl;
-        plik << nazwisko << endl;
-        plik << numerTelefonu << endl;
-        plik << adres << endl;
-        plik << email << endl;
+        plik<<endl;
+        plik << osobaId <<"|";
+        plik << imie << "|";
+        plik << nazwisko << "|";
+        plik << numerTelefonu << "|";
+        plik << adres << "|";
+        plik << email << "|";
 
         plik.close();
 
@@ -64,59 +65,95 @@ void dodajPrzyjaciela(przyjaciel bazaPrzyjaciol[],int indeks)
     indeks++;
 }
 
-int WczytajZPliku(przyjaciel bazaPrzyjaciol[])
+int sprawdzIloscPrzyjaciol()
 {
     fstream plik;
+    plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
+    int obecnaIloscPrzyjaciolWksiazce = 0;
+    string linia;
+    if( plik.good()==false)
+         exit(0);
+    else
+    {
+        while (getline(plik,linia))
+        {
+            obecnaIloscPrzyjaciolWksiazce++;
+        }
+    }
+    return obecnaIloscPrzyjaciolWksiazce;
+}
 
-    plik.open("KsiazkaAdresowa.txt",ios::in);
+
+int WczytajZPliku(przyjaciel bazaPrzyjaciol[])
+{
+   fstream plik;
+
+    plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
 
     if( plik.good()==false)
     {
         cout<<"Plik nie istnieje!";
         exit(0);
     }
-    string imie[1000], nazwisko[1000], numerTelefonu[1000], adres[1000], email[1000];
-    int id[1000];
-    string linia;
+
+    string imie[10], nazwisko[10], numerTelefonu[10], adres[10], email[10];
+    int id[10];
+    string linia,tymczasowy;
 
     int nr_linii=1;
     int indeks = 0;
+    int indeksliterWLinice = 0;
     while(getline(plik,linia))
     {
+        do
+        {
+        if(linia[indeksliterWLinice]== '|')
+        {
         switch(nr_linii)
         {
         case 1:
-            id[indeks] = atoi(linia.c_str());
+            id[indeks] = atoi(tymczasowy.c_str());
             break;
         case 2:
-            imie[indeks] = linia;
+            imie[indeks] = tymczasowy;
             break;
         case 3:
-            nazwisko[indeks] = linia;
+            nazwisko[indeks] = tymczasowy;
             break;
         case 4:
-            numerTelefonu[indeks] = linia;
+            numerTelefonu[indeks] = tymczasowy;
             break;
         case 5:
-            adres[indeks] = linia;
+            adres[indeks] = tymczasowy;
             break;
         case 6:
-            email[indeks] = linia;
+            email[indeks] = tymczasowy;
             break;
         }
-        int aktualneID = indeks+1;
-        bazaPrzyjaciol[indeks].id = aktualneID;
-        bazaPrzyjaciol[indeks].imie = imie[indeks];
-        bazaPrzyjaciol[indeks].nazwisko = nazwisko[indeks];
-        bazaPrzyjaciol[indeks].nrTel = numerTelefonu[indeks];
-        bazaPrzyjaciol[indeks].adres = adres[indeks];
-        bazaPrzyjaciol[indeks].email = email[indeks];
-
+        tymczasowy.clear();
         nr_linii++;
+        }
+        else
+         tymczasowy += linia[indeksliterWLinice];
+        indeksliterWLinice++;
+        }
+        while(indeksliterWLinice<linia.length());
+
         if(nr_linii == 7)
         {
             nr_linii= 1;
+            indeksliterWLinice = 0;
+
+            int aktualneID = indeks+1;
+            bazaPrzyjaciol[indeks].id = aktualneID;
+            bazaPrzyjaciol[indeks].imie = imie[indeks];
+            bazaPrzyjaciol[indeks].nazwisko = nazwisko[indeks];
+            bazaPrzyjaciol[indeks].nrTel = numerTelefonu[indeks];
+            bazaPrzyjaciol[indeks].adres = adres[indeks];
+            bazaPrzyjaciol[indeks].email = email[indeks];
+
             indeks++;
+
         }
     }
     plik.close();
@@ -224,6 +261,8 @@ int main()
     przyjaciel baza[1000];
     int indeks = 0;
     char wybor;
+    fstream plik;
+    int iloscPrzyjaciolWKsiazce;
     while(1)
     {
         system("cls");
@@ -233,7 +272,8 @@ int main()
         cin>>wybor;
         if (wybor =='1')
         {
-            dodajPrzyjaciela(baza,indeks);
+            iloscPrzyjaciolWKsiazce = sprawdzIloscPrzyjaciol();
+            dodajPrzyjaciela(baza,iloscPrzyjaciolWKsiazce);
         }
         else if (wybor == '2')
         {
