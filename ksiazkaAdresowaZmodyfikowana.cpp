@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,7 +23,7 @@ string zamienIntNaString(int liczba)
     string liczbaPoKonwersji = ss.str();
     return liczbaPoKonwersji;
 }
-string zbieranieInformacjiOPrzyjacielu(int indeks)
+string zbieranieInformacjiOPrzyjacielu()
 {
     string nowyKontakt = "";
     string znacznikPodzialuDanychWKontakcie = "|";
@@ -49,22 +50,21 @@ string zbieranieInformacjiOPrzyjacielu(int indeks)
     cin>>email;
     nowyKontakt += (email+=znacznikPodzialuDanychWKontakcie);
     cout<<endl;
-    imie.clear();
-    nazwisko.clear();
-    numerTelefonu.clear();
-    adres.clear();
-    email.clear();
+
     return nowyKontakt;
 }
-void dodajPrzyjacielaDoPliku(int indeks)
+void dodajPrzyjacielaDoPliku(int indeks, int wolnyIdentyfikator)
 {
-    string danePrzyjaciela = zbieranieInformacjiOPrzyjacielu(indeks);
+    cout<<"*######### WITAJ W FUNKCJI DODAWANIA NOWEGO KONTAKTU #########*"<<endl<<endl;
+    cout<<"Kazdy nowy kontakt posiada swoj staly i niezmienny identyfikator"<<endl;
+    cout<<"Nowy kontakt zostanie oznaczony pierwszym wolnym identyfikatorem, a wiec numerem: "<<wolnyIdentyfikator<<endl<<endl;
+    cout<<"***###***###***###***###***###***###***###***###***###***###***"<<endl<<endl;
+    string danePrzyjaciela = zbieranieInformacjiOPrzyjacielu();
     fstream plik;
     plik.open("ksiazkaAdresowaZmodyfikowana.txt", ios::out | ios::app);
     if (plik.good())
     {
-        int osobaId = indeks + 1;
-        plik << osobaId<<"|";
+        plik << wolnyIdentyfikator<<"|";
         plik << danePrzyjaciela;
         plik<<endl;
         plik.close();
@@ -77,25 +77,26 @@ void dodajPrzyjacielaDoPliku(int indeks)
     }
     indeks++;
 }
-int WczytajZPlikuDanePrzyjaciol()
+int wczytajZPlikuDanePrzyjaciol()
 {
+    int indeksDanych = 0;
     fstream plik;
     plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
     if( plik.good()==false)
     {
-        cout<<"Plik nie istnieje!";
-        exit(0);
+        cout<<"Blad!!Plik z danymi nie istnieje!"<<endl;
+        return indeksDanych;
     }
 
-    string tymczasowy, linia;
+    string tymczasowy, odczytywanaLinia;
     int nr_linii=1;
-    int indeks = 0;
+
     int indeksliterWLinice = 0;
-    while(getline(plik,linia))
+    while(getline(plik,odczytywanaLinia))
     {
         do
         {
-            if(linia[indeksliterWLinice]== '|')
+            if(odczytywanaLinia[indeksliterWLinice]== '|')
             {
                 switch(nr_linii)
                 {
@@ -121,24 +122,24 @@ int WczytajZPlikuDanePrzyjaciol()
                 tymczasowy.clear();
                 nr_linii++;
             }
-            else tymczasowy += linia[indeksliterWLinice];
+            else tymczasowy += odczytywanaLinia[indeksliterWLinice];
             indeksliterWLinice++;
         }
-        while(indeksliterWLinice<linia.length());
+        while(indeksliterWLinice<odczytywanaLinia.length());
         if(nr_linii == 7)
         {
             nr_linii= 1;
             indeksliterWLinice = 0;
-            indeks++;
+            indeksDanych++;
         }
     }
     plik.close();
-    linia.clear();
-    return indeks;
+    odczytywanaLinia.clear();
+    return indeksDanych;
 }
-void wyswietlWszystkichPrzyjaciol(int indeks)
+void wyswietlWszystkichPrzyjaciol(int iloscDanych)
 {
-    if(indeks == 0)
+    if(iloscDanych == 0)
     {
         cout<<"W ksiaze adresowej nie znajduje sie zaden kontakt! W Menu Glownym wybierz -1- i dodaj kontakt"<<endl;
         Sleep(1500);
@@ -148,72 +149,71 @@ void wyswietlWszystkichPrzyjaciol(int indeks)
         fstream plik;
         plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
         cout<<"************** AKTUALNA LISTA WSZYSTKICH KONTAKTOW **************"<<endl<<endl;
-        string linia;
+        string pobranaLinia;
         int numerPorzadkowy = 0;
-        while(getline(plik,linia))
+        while(getline(plik,pobranaLinia))
         {
             numerPorzadkowy++;
             cout<<numerPorzadkowy<<".   ";
-            cout<<linia<<endl;
+            cout<<pobranaLinia<<endl;
         }
         cout<<endl;
         cout<<"************************ KONIEC LISTY ***************************"<<endl;
         cout<<endl;
         plik.close();
-        linia.clear();
+        pobranaLinia.clear();
     }
 }
-void wyswietlPrzyjaciolPoNazwisku(int indeks)
+void wyswietlPrzyjaciolPoNazwisku(int iloscKontaktow)
 {
-
-    string wyraz;
+    string wyrazNazwisko;
     cout<<"Podaj nazwisko: "<<endl;
-    cin>>wyraz;
+    cin>>wyrazNazwisko;
     cout<<endl;
-    int znalezionePozycje = 0;
-    cout<<"OTO DANE KONTAKTOWE OSOB O NAZWISKU: "<<wyraz<<endl<<endl;
+    int znalezionePozycjeNazwisko = 0;
+    cout<<"OTO DANE KONTAKTOWE OSOB O NAZWISKU: "<<wyrazNazwisko<<endl<<endl;
 
-    for(int j = 0; j<indeks; j++)
+    for(int i = 0; i<iloscKontaktow; i++)
     {
-        if(wyraz == nazwiskaPrzyjaciol[j])
+        if(wyrazNazwisko == nazwiskaPrzyjaciol[i])
         {
-            cout<<"Numer identyfikacyjny: "<<identyfikatoryPrzyjaciol[j]<<endl;
-            cout<<"Imie: "<<imionaPrzyjaciol[j]<<endl;
-            cout<<"Nazwisko: "<<nazwiskaPrzyjaciol[j]<<endl;
-            cout<<"Numer Telefonu: "<<numeryTelefonowPrzyjaciol[j]<<endl;
-            cout<<"Adres: "<<adresyPrzyjaciol[j]<<endl;
-            cout<<"Email: "<<emailePrzyjaciol[j]<<endl;
+            cout<<"Numer identyfikacyjny: "<<identyfikatoryPrzyjaciol[i]<<endl;
+            cout<<"Imie: "<<imionaPrzyjaciol[i]<<endl;
+            cout<<"Nazwisko: "<<nazwiskaPrzyjaciol[i]<<endl;
+            cout<<"Numer Telefonu: "<<numeryTelefonowPrzyjaciol[i]<<endl;
+            cout<<"Adres: "<<adresyPrzyjaciol[i]<<endl;
+            cout<<"Email: "<<emailePrzyjaciol[i]<<endl;
             cout<<endl;
-            znalezionePozycje++;
+            znalezionePozycjeNazwisko++;
         }
     }
     cout<<endl<<endl;
     cout<<"********** KONIEC LISTY **********"<<endl;
-    Sleep(1000);
-    if(znalezionePozycje == 0)
+    Sleep(1500);
+    system("pause");
+    if(znalezionePozycjeNazwisko == 0)
     {
         system("cls");
         cout<<"Brak wynikow dla podanego nazwiska "<<endl;
         cout<<"*******************************************************************"<<endl;
-        cout<<"Wyglada na to, ze nie dodales jeszcze osoby o nazwisku "<<wyraz<<endl;
-        cout<<"Zrob to korzystajac z menu glownego";
+        cout<<"Wyglada na to, ze nie dodales jeszcze osoby o nazwisku "<<wyrazNazwisko<<endl;
+        cout<<"Zrob to korzystajac z menu glownego, do ktorego zostaniesz teraz przekierowany";
+        Sleep(5000);
     }
     cout<<endl;
 }
-void wyswietlPrzyjaciolPoimieniu(int indeks)
+void wyswietlPrzyjaciolPoimieniu(int iloscKontaktow)
 {
-
-
-    string wyraz;
+    string wyrazImie;
     cout<<"Podaj imie: "<<endl;
-    cin>>wyraz;
+    cin>>wyrazImie;
     cout<<endl;
-    int znalezionePozycje = 0;
-    cout<<"OTO DANE KONTAKTOWE OSOB O IMIENIU: "<<wyraz<<endl<<endl;
+    int znalezionePozycjeImie = 0;
+    cout<<"OTO DANE KONTAKTOWE OSOB O IMIENIU: "<<wyrazImie<<endl<<endl;
 
-    for(int j = 0; j<indeks; j++)
+    for(int j = 0; j<iloscKontaktow; j++)
     {
-        if(wyraz == imionaPrzyjaciol[j])
+        if(wyrazImie == imionaPrzyjaciol[j])
         {
             cout<<"Numer identyfikacyjny: "<<identyfikatoryPrzyjaciol[j]<<endl;
             cout<<"Imie: "<<imionaPrzyjaciol[j]<<endl;
@@ -222,19 +222,21 @@ void wyswietlPrzyjaciolPoimieniu(int indeks)
             cout<<"Adres: "<<adresyPrzyjaciol[j]<<endl;
             cout<<"Email: "<<emailePrzyjaciol[j]<<endl;
             cout<<endl;
-            znalezionePozycje++;
+            znalezionePozycjeImie++;
         }
     }
     cout<<endl<<endl;
     cout<<"********** KONIEC LISTY **********"<<endl;
-    Sleep(1000);
-    if(znalezionePozycje == 0)
+    Sleep(1500);
+    system("pause");
+    if(znalezionePozycjeImie == 0)
     {
         system("cls");
         cout<<"Brak wynikow dla podanego imienia "<<endl;
         cout<<"*******************************************************************"<<endl;
-        cout<<"Wyglada na to, ze nie dodales jeszcze osoby o imieniu "<<wyraz<<endl;
-        cout<<"Zrob to korzystajac z menu glownego";
+        cout<<"Wyglada na to, ze nie dodales jeszcze osoby o imieniu "<<wyrazImie<<endl;
+        cout<<"Zrob to korzystajac z menu glownego, do ktorego zostaniesz teraz przekierowany";
+        Sleep(5000);
     }
     cout<<endl;
 }
@@ -250,12 +252,12 @@ vector <string> utworzBazeKontaktowZpliku()
         cout<<"Plik nie istnieje!";
         exit(0);
     }
-    string linia;
-    while(getline(plik,linia))
+    string liniaPobrana;
+    while(getline(plik,liniaPobrana))
     {
-        kontaktyZapisaneWPliku.push_back(linia);
+        kontaktyZapisaneWPliku.push_back(liniaPobrana);
     }
-    linia.clear();
+    liniaPobrana.clear();
     plik.close();
 
     return kontaktyZapisaneWPliku;
@@ -275,15 +277,58 @@ void zapiszZmianyDoPliku(vector <string> &wektorDanych)
         wektorDanych.clear();
     }
 }
-void usunPrzyjaciela(int pozycjaDoUsuniecia, int indeks)
+int znajdzWolnyIdentyfikator (int indeks, vector <int> &iDprzyjaciol)
 {
-    if((pozycjaDoUsuniecia>0)&&(pozycjaDoUsuniecia<=indeks))
+    sort(iDprzyjaciol.begin(), iDprzyjaciol.end());
+
+    int ostatniElement = iDprzyjaciol.size()-1;
+
+    int indeksLiczbDoSprawdzenia = 1;
+    int wolneID = 0;
+
+    if(iDprzyjaciol.empty()== true)
     {
-        vector <string> Wszystkieliniie = utworzBazeKontaktowZpliku();
+        return wolneID = 1;
+    }
+    else
+    {
+        for(int indeksWwektorzeID = 0; indeksWwektorzeID <= iDprzyjaciol.size(); indeksWwektorzeID++)
+        {
 
-        Wszystkieliniie.erase(Wszystkieliniie.begin() + (pozycjaDoUsuniecia-1));
+            if (iDprzyjaciol[indeksWwektorzeID] == indeksLiczbDoSprawdzenia)
+            {
+                indeksLiczbDoSprawdzenia++;
+            }
+            else
+            {
+                if(indeksWwektorzeID<=ostatniElement)
+                {
+                    wolneID = indeksLiczbDoSprawdzenia;
+                    return wolneID;
+                    break;
+                }
 
-        zapiszZmianyDoPliku(Wszystkieliniie);
+                else
+                {
+                    wolneID += indeks +1;
+                    return wolneID;
+                    break;
+                }
+            }
+        }
+    }
+
+    iDprzyjaciol.clear();
+}
+void usunPrzyjaciela(int pozycjaDoUsuniecia, int sumaKontaktow)
+{
+    if((pozycjaDoUsuniecia>0)&&(pozycjaDoUsuniecia<=sumaKontaktow))
+    {
+        vector <string> zbiorPobranychLinii = utworzBazeKontaktowZpliku();
+
+        zbiorPobranychLinii.erase(zbiorPobranychLinii.begin() + (pozycjaDoUsuniecia-1));
+
+        zapiszZmianyDoPliku(zbiorPobranychLinii);
 
         system("cls");
         cout<<"Kontakt usuniety z listy" << endl;
@@ -321,11 +366,11 @@ void edytujKontakt(int pozycjaDoEdycji, int indeks)
 {
     if((pozycjaDoEdycji>0)&&(pozycjaDoEdycji<=indeks))
     {
-        vector <string> Wszystkieliniie = utworzBazeKontaktowZpliku();
+        vector <string> wszystkieLinie = utworzBazeKontaktowZpliku();
 
         system("cls");
         cout<<"Wchodzisz w edycje kontaktu pod numerem: "<<pozycjaDoEdycji<<endl;
-        string liniaDoEdycji = Wszystkieliniie[pozycjaDoEdycji-1];
+        string liniaDoEdycji = wszystkieLinie[pozycjaDoEdycji-1];
         cout<<liniaDoEdycji<<endl<<endl;
         cout<<"Potwierdz dowolnym klawiszem"<<endl;
         system ("pause");
@@ -339,12 +384,12 @@ void edytujKontakt(int pozycjaDoEdycji, int indeks)
         cout<<endl;
 
         string idKontaktuEdytowanego = odczytajIdentyfikatorEdytowanegoKontaktu(liniaDoEdycji);
-        string noweDaneEdytowanegoKontaktu = idKontaktuEdytowanego+zbieranieInformacjiOPrzyjacielu(indeks);
-        Wszystkieliniie.erase(Wszystkieliniie.begin() + (pozycjaDoEdycji-1));
-        Wszystkieliniie.insert(Wszystkieliniie.begin() + (pozycjaDoEdycji-1),noweDaneEdytowanegoKontaktu);
+        string noweDaneEdytowanegoKontaktu = idKontaktuEdytowanego+zbieranieInformacjiOPrzyjacielu();
+        wszystkieLinie.erase(wszystkieLinie.begin() + (pozycjaDoEdycji-1));
+        wszystkieLinie.insert(wszystkieLinie.begin() + (pozycjaDoEdycji-1),noweDaneEdytowanegoKontaktu);
         noweDaneEdytowanegoKontaktu.clear();
         liniaDoEdycji.clear();
-        zapiszZmianyDoPliku(Wszystkieliniie);
+        zapiszZmianyDoPliku(wszystkieLinie);
 
         system("cls");
         cout<<"Kontakt zmodyfikowany"<<endl;
@@ -362,14 +407,25 @@ void edytujKontakt(int pozycjaDoEdycji, int indeks)
         Sleep(1000);
     }
 }
-void menuGlowne()
+void wyczyscBuforDanych()
+{
+    identyfikatoryPrzyjaciol.clear();
+    imionaPrzyjaciol.clear();
+    nazwiskaPrzyjaciol.clear();
+    numeryTelefonowPrzyjaciol.clear();
+    adresyPrzyjaciol.clear();
+    emailePrzyjaciol.clear();
+}
+void wyswietlMenuGlowne()
 {
     int indeks;
     char wybor;
+    int wolnyIdentyfikator = 0;
     while(1)
     {
         system("cls");
-        int indeks = WczytajZPlikuDanePrzyjaciol();
+        wyczyscBuforDanych();
+        int indeks = wczytajZPlikuDanePrzyjaciol();
         cout<<"******************* WITAJ W KSIAZCE ADRESOWEJ *******************"<<endl<<endl;
         cout<<"************************** MENU GLOWNE **************************"<<endl<<endl;
         cout<<"Aktualnie w ksiazce znajduje sie: "
@@ -386,7 +442,8 @@ void menuGlowne()
         if (wybor =='1')
         {
             system("cls");
-            dodajPrzyjacielaDoPliku(indeks);
+            int wolnyIdentyfikator = znajdzWolnyIdentyfikator(indeks, identyfikatoryPrzyjaciol);
+            dodajPrzyjacielaDoPliku(indeks,wolnyIdentyfikator);
         }
         else if (wybor == '2')
         {
@@ -394,26 +451,26 @@ void menuGlowne()
             {
                 system("cls");
                 char wyborwyszukiwania;
-                cout<<"1. Wyszukaj po nazwisku"<<endl;
+                cout<<"******OTO FUNKCJA WYSZUKIWANIA DANYCH KONTAKTOWYCH******"<<endl<<endl;
+                cout<<"1. Wyswietl wszystkich przyjaciol"<<endl;
                 cout<<"2. Wyszukaj po imieniu"<<endl;
-                cout<<"3. Wyswietl wszystkich przyjaciol"<<endl;
+                cout<<"3. Wyszukaj po nazwisku"<<endl<<endl;
+
+                cout<<"Wprowadz numer odpowiadajacy danej wyszukiwarce"<<endl;
                 cin>>wyborwyszukiwania;
                 cout<<endl;
-                indeks = WczytajZPlikuDanePrzyjaciol();
                 if(wyborwyszukiwania =='1')
                 {
-                    wyswietlPrzyjaciolPoNazwisku(indeks);
-                    system("pause");
+                    wyswietlWszystkichPrzyjaciol(indeks);
+                    system("Pause");
                 }
                 else if (wyborwyszukiwania =='2')
                 {
                     wyswietlPrzyjaciolPoimieniu(indeks);
-                    system("pause");
                 }
                 else if (wyborwyszukiwania =='3')
                 {
-                    wyswietlWszystkichPrzyjaciol(indeks);
-                    system("pause");
+                    wyswietlPrzyjaciolPoNazwisku(indeks);
                 }
                 break;
             }
@@ -448,9 +505,7 @@ void menuGlowne()
                 cin>>pozycjaDoEdycji;
                 edytujKontakt(pozycjaDoEdycji,indeks);
             }
-
         }
-
         else if (wybor =='9')
         {
             exit(0);
@@ -460,11 +515,12 @@ void menuGlowne()
             cout<<"Wybierz poprawny numer!"<<endl;
             Sleep(1000);
         }
-
     }
 }
 int main()
 {
-    menuGlowne();
+    wyswietlMenuGlowne();
+
     return 0;
 }
+
