@@ -57,16 +57,16 @@ void dodajPrzyjaciela(int indeks, int wolnyIdentyfikator)
     plik.open("ksiazkaAdresowaZmodyfikowana.txt", ios::out | ios::app);
     if (plik.good())
     {
-        plik << wolnyIdentyfikator<<"|";
-        plik << danePrzyjaciela;
+        plik<<wolnyIdentyfikator<<"|";
+        plik<<danePrzyjaciela;
         plik<<endl;
         plik.close();
-        cout<<"Przyjaciel dodany do listy" << endl;
+        cout<<"Przyjaciel dodany do listy"<<endl;
         Sleep(1000);
     }
     else
     {
-        cout << "Nie mozna otworzyc pliku: KsiazkaAdresowa.txt" << endl;
+        cout<<"Nie mozna otworzyc pliku: KsiazkaAdresowa.txt"<<endl;
     }
     indeks++;
 }
@@ -75,21 +75,21 @@ int wczytajZPlikuDanePrzyjaciol()
     int indeksDanych = 0;
     fstream plik;
     plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
-    if( plik.good()==false)
+    if( plik.good() == false)
     {
         cout<<"Blad!!Plik z danymi nie istnieje!"<<endl;
         return indeksDanych;
     }
 
     string tymczasowy, odczytywanaLinia;
-    int nrLinii=1;
+    int nrLinii = 1;
 
     int indeksliterWLinice = 0;
     while(getline(plik,odczytywanaLinia))
     {
         do
         {
-            if(odczytywanaLinia[indeksliterWLinice]== '|')
+            if(odczytywanaLinia[indeksliterWLinice] == '|')
             {
                 switch(nrLinii)
                 {
@@ -118,10 +118,10 @@ int wczytajZPlikuDanePrzyjaciol()
             else tymczasowy += odczytywanaLinia[indeksliterWLinice];
             indeksliterWLinice++;
         }
-        while(indeksliterWLinice<odczytywanaLinia.length());
+        while(indeksliterWLinice < odczytywanaLinia.length());
         if(nrLinii == 7)
         {
-            nrLinii= 1;
+            nrLinii = 1;
             indeksliterWLinice = 0;
             indeksDanych++;
         }
@@ -166,7 +166,7 @@ void wyswietlPrzyjaciolPoNazwisku(int iloscKontaktow)
     int znalezionePozycjeNazwisko = 0;
     cout<<"OTO DANE KONTAKTOWE OSOB O NAZWISKU: "<<wyrazNazwisko<<endl<<endl;
 
-    for(int i = 0; i<iloscKontaktow; i++)
+    for(int i = 0; i < iloscKontaktow; i++)
     {
         if(wyrazNazwisko == nazwiskaPrzyjaciol[i])
         {
@@ -202,7 +202,7 @@ void wyswietlPrzyjaciolPoimieniu(int iloscKontaktow)
     int znalezionePozycjeImie = 0;
     cout<<"OTO DANE KONTAKTOWE OSOB O IMIENIU: "<<wyrazImie<<endl<<endl;
 
-    for(int j = 0; j<iloscKontaktow; j++)
+    for(int j = 0; j < iloscKontaktow; j++)
     {
         if(wyrazImie == imionaPrzyjaciol[j])
         {
@@ -236,7 +236,7 @@ vector <string> utworzBazeKontaktowZpliku()
 
     plik.open("ksiazkaAdresowaZmodyfikowana.txt",ios::in);
 
-    if( plik.good()==false)
+    if( plik.good() == false)
     {
         cout<<"Plik nie istnieje!";
         exit(0);
@@ -258,9 +258,9 @@ void zapiszZmianyDoPliku(vector <string> &wektorDanych)
 
     if (plik.good())
     {
-        for(int x = 0; x<wektorDanych.size(); x++)
+        for(int x = 0; x < wektorDanych.size(); x++)
         {
-            plik << wektorDanych[x]<<endl;
+            plik<<wektorDanych[x]<<endl;
         }
         plik.close();
         wektorDanych.clear();
@@ -273,7 +273,7 @@ int znajdzWolnyIdentyfikator (int indeks, vector <int> &iDprzyjaciol)
     int ostatniElement = iDprzyjaciol.size()-1;
     int wolneID = 0;
 
-    if(iDprzyjaciol.empty()== true)
+    if(iDprzyjaciol.empty() == true)
     {
         return wolneID = 1;
     }
@@ -286,7 +286,7 @@ int znajdzWolnyIdentyfikator (int indeks, vector <int> &iDprzyjaciol)
 }
 void usunPrzyjaciela(int pozycjaDoUsuniecia, int sumaKontaktow)
 {
-    if((pozycjaDoUsuniecia>0)&&(pozycjaDoUsuniecia<=sumaKontaktow))
+    if((pozycjaDoUsuniecia > 0) && (pozycjaDoUsuniecia <= sumaKontaktow))
     {
         vector <string> zbiorPobranychLinii = utworzBazeKontaktowZpliku();
 
@@ -295,7 +295,7 @@ void usunPrzyjaciela(int pozycjaDoUsuniecia, int sumaKontaktow)
         zapiszZmianyDoPliku(zbiorPobranychLinii);
 
         system("cls");
-        cout<<"Kontakt usuniety z listy" << endl;
+        cout<<"Kontakt usuniety z listy"<<endl;
         Sleep(1000);
     }
 
@@ -315,11 +315,11 @@ string odczytajIdentyfikatorEdytowanegoKontaktu(string liniaDoSprawdzenia)
 {
     string biezacaLinia = liniaDoSprawdzenia;
     string identyfikatorEdytowanegoKontaktu = "";
-    int k = 0;
+    int sprawdzanyZnak = 0;
     while(biezacaLinia[k] != '|')
     {
         identyfikatorEdytowanegoKontaktu +=biezacaLinia[k];
-        k++;
+        sprawdzanyZnak++;
     }
     identyfikatorEdytowanegoKontaktu += "|";
 
@@ -328,7 +328,7 @@ string odczytajIdentyfikatorEdytowanegoKontaktu(string liniaDoSprawdzenia)
 }
 void edytujKontakt(int pozycjaDoEdycji, int indeks)
 {
-    if((pozycjaDoEdycji>0)&&(pozycjaDoEdycji<=indeks))
+    if((pozycjaDoEdycji > 0) && (pozycjaDoEdycji <= indeks))
     {
         vector <string> wszystkieLinie = utworzBazeKontaktowZpliku();
 
